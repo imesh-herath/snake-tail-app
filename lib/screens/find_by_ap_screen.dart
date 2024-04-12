@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:snake_tail/screens/details_screen.dart';
+import 'package:snake_tail/screens/no_result.dart';
 import 'package:snake_tail/utils/snake.dart';
 import 'package:snake_tail/widgets/appbar.dart';
 import 'package:snake_tail/widgets/button.dart';
@@ -18,6 +19,35 @@ class FindByAppearanceScreen extends StatefulWidget {
   State<FindByAppearanceScreen> createState() => _FindByAppearanceScreenState();
 }
 
+Future<List<String>?> getFirstAid() async {
+  try {
+    final response = await http.get(Uri.parse('$apiURL/getFirstAid'));
+
+    if (response.statusCode == 200) {
+      final dynamic data = jsonDecode(response.body);
+
+      if (data is Map<String, dynamic> && data.containsKey('first_aid_steps')) {
+        // Extract first aid steps from the response
+        List<dynamic> firstAidData = data['first_aid_steps'];
+        List<String> firstAidSteps =
+            firstAidData.map((item) => item.toString()).toList();
+        print('First aid steps fetched successfully!');
+        return firstAidSteps;
+      } else {
+        // Unexpected response format
+        print('Unexpected response format for first aid steps: $data');
+        return null;
+      }
+    } else {
+      print('Failed to fetch first aid steps: ${response.statusCode}');
+      return null;
+    }
+  } catch (e) {
+    print('Error fetching first aid steps: $e');
+    return null;
+  }
+}
+
 class _FindByAppearanceScreenState extends State<FindByAppearanceScreen> {
   void openDetails(Snake snake) {
     print("Opening details screen...");
@@ -25,6 +55,12 @@ class _FindByAppearanceScreenState extends State<FindByAppearanceScreen> {
       builder: (context) => DetailsScreen(
         snake: snake,
       ),
+    ));
+  }
+
+  void newOpenDetails() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => const NoResultsScreen(),
     ));
   }
 
@@ -60,72 +96,55 @@ class _FindByAppearanceScreenState extends State<FindByAppearanceScreen> {
         body: jsonBody,
       );
 
-      if (response.statusCode == 200 || response.statusCode ==  302) {
+      if (response.statusCode == 200) {
         print('Response received successfully!');
 
         print(response.body);
-
-        Map<String, dynamic> jsonResponse = await jsonDecode(response.body);
+        var jsonResponse = response.body;
 
         print('Response: $jsonResponse');
 
-        String snakeName = jsonResponse['fields']['snake_name']['stringValue'];
-        String description =
-            jsonResponse['fields']['description']['stringValue'];
-        String scientificName =
-            jsonResponse['fields']['scientific_name']['stringValue'];
-        String imageUrl = jsonResponse['fields']['image_url']['stringValue'];
+        var newReq = await http.get(Uri.parse('$apiURL/snakes/$jsonResponse'));
+        print("New Request: $newReq");
 
-        print('Snake Name: $snakeName');
-        print('Description: $description');
-        print('Scientific Name: $scientificName');
-        print('Image URL: $imageUrl');
+        if (newReq.statusCode == 200) {
+          Map<String, dynamic> newJsonResponse = json.decode(newReq.body);
 
-        // Retrieve medicine
-        List<String>? medicine = await getFirstAid();
+          if (newJsonResponse == 'unknown') {
+            newOpenDetails();
+            return;
+          }
 
-        if (medicine != null) {
-          print('Medicine: $medicine');
-          openDetails(Snake(
-              snakeName, description, medicine, scientificName, imageUrl));
-        } else {
-          print('Failed to retrieve medicine.');
+          String snakeName =
+              newJsonResponse['fields']['snake_name']['stringValue'];
+          String description =
+              newJsonResponse['fields']['description']['stringValue'];
+          String scientificName =
+              newJsonResponse['fields']['scientific_name']['stringValue'];
+          String imageUrl =
+              newJsonResponse['fields']['image_url']['stringValue'];
+
+          print('Snake Name: $snakeName');
+          print('Description: $description');
+          print('Scientific Name: $scientificName');
+          print('Image URL: $imageUrl');
+
+          // Retrieve medicine
+          List<String>? medicine = await getFirstAid();
+
+          if (medicine != null) {
+            print('Medicine: $medicine');
+            openDetails(Snake(
+                snakeName, description, medicine, scientificName, imageUrl));
+          } else {
+            print('Failed to retrieve medicine.');
+          }
         }
       } else {
         print('Failed to send data: ${response.statusCode}');
       }
     } catch (e) {
       print('Error: ${e.toString()}');
-    }
-  }
-
-  Future<List<String>?> getFirstAid() async {
-    try {
-      final response = await http.get(Uri.parse('$apiURL/getFirstAid'));
-
-      if (response.statusCode == 200) {
-        final dynamic data = jsonDecode(response.body);
-
-        if (data is Map<String, dynamic> &&
-            data.containsKey('first_aid_steps')) {
-          // Extract first aid steps from the response
-          List<dynamic> firstAidData = data['first_aid_steps'];
-          List<String> firstAidSteps =
-              firstAidData.map((item) => item.toString()).toList();
-          print('First aid steps fetched successfully!');
-          return firstAidSteps;
-        } else {
-          // Unexpected response format
-          print('Unexpected response format for first aid steps: $data');
-          return null;
-        }
-      } else {
-        print('Failed to fetch first aid steps: ${response.statusCode}');
-        return null;
-      }
-    } catch (e) {
-      print('Error fetching first aid steps: $e');
-      return null;
     }
   }
 

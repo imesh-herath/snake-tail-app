@@ -1,3 +1,5 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -31,12 +33,12 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     ));
   }
-  // void openDetails() {
-  //   Navigator.of(context).push(MaterialPageRoute(
-  //     builder: (context) => NoResultsScreen(
-  //     ),
-  //   ));
-  // }
+
+  void newOpenDetails() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => const NoResultsScreen(),
+    ));
+  }
 
   Future<void> pickImage(ImageSource fromWhere) async {
     final picker = ImagePicker();
@@ -74,26 +76,52 @@ class _HomeScreenState extends State<HomeScreen> {
       var streamedResponse = await request.send();
 
       if (streamedResponse.statusCode == 200) {
+        print("Request successful");
         // If the request was successful, decode the response
         var response = await streamedResponse.stream.bytesToString();
-        Map<String, dynamic> jsonResponse = json.decode(response);
 
-        // Extract data from the response
-        String snakeName = jsonResponse['fields']['snake_name']['stringValue'];
-        String description =
-            jsonResponse['fields']['description']['stringValue'];
-        String scientificName =
-            jsonResponse['fields']['scientific_name']['stringValue'];
-        String imageUrl = jsonResponse['fields']['image_url']['stringValue'];
+        var jsonResponse = response;
+        print("Response: $jsonResponse");
 
-        // Do whatever you need with the data
-        print('Snake Name: $snakeName');
-        print('Description: $description');
-        print('Scientific Name: $scientificName');
-        print('Image URL: $imageUrl');
+        // Prepare the request
+        var newReq = await http.get(Uri.parse('$apiURL/snakes/$jsonResponse'));
 
-        openDetails(
-            Snake(snakeName, description, [], scientificName, imageUrl));
+        if (newReq.statusCode == 200) {
+          print("New Request successful");
+          // var newResponse = await streamedResponse.stream.bytesToString();
+          Map<String, dynamic> newJsonResponse = json.decode(newReq.body);
+          print("New Response: $newJsonResponse");
+
+          if (newJsonResponse == 'unknown') {
+            newOpenDetails();
+            return;
+          }
+          
+          List<String>? medicine = await getFirstAid();
+          // Extract data from the response
+          String snakeName =
+              newJsonResponse['fields']['snake_name']['stringValue'];
+          String description =
+              newJsonResponse['fields']['description']['stringValue'];
+          String scientificName =
+              newJsonResponse['fields']['scientific_name']['stringValue'];
+          String imageUrl =
+              newJsonResponse['fields']['image_url']['stringValue'];
+
+          // Do whatever you need with the data
+          print('Snake Name: $snakeName');
+          print('Description: $description');
+          print('Scientific Name: $scientificName');
+          print('Image URL: $imageUrl');
+
+          if (medicine != null) {
+            print('Medicine: $medicine');
+            openDetails(Snake(
+                snakeName, description, medicine, scientificName, imageUrl));
+          } else {
+            print('Failed to retrieve medicine.');
+          }
+        }
       } else {
         // Handle other status codes if needed
         print('Failed to fetch data: ${streamedResponse.statusCode}');

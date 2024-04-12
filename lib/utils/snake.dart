@@ -3,7 +3,7 @@
 class Snake {
   final String snake_name;
   final String discription;
-  final List<String> medicine;
+  final List<String>? medicine;
   final String? scientific_name;
   final String img_url;
 

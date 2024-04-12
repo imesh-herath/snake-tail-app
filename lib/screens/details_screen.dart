@@ -72,7 +72,7 @@ class DetailsScreen extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: snake.medicine.asMap().entries.map((e) {
+                      children: snake.medicine!.asMap().entries.map((e) {
                         int index = e.key;
                         return Text('${index + 1}. ${e.value}');
                       }).toList(),

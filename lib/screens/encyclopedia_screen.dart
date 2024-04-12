@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:snake_tail/screens/details_screen.dart';
+import 'package:snake_tail/screens/find_by_ap_screen.dart';
 import 'package:snake_tail/utils/snake.dart';
 import 'package:snake_tail/widgets/appbar.dart';
 import 'package:snake_tail/widgets/button.dart';
@@ -43,6 +44,7 @@ class _EncylopediaScreenState extends State<EncylopediaScreen> {
           // Iterate over each snake object in the response
           for (var snakeData in snakesData) {
             Map<String, dynamic> fields = snakeData['fields'];
+            List<String>? medicine = await getFirstAid();
 
             // Extract fields from JSON
             String snakeName = fields['snake_name']['stringValue'];
@@ -54,7 +56,7 @@ class _EncylopediaScreenState extends State<EncylopediaScreen> {
             Snake snake = Snake(
               snakeName,
               description,
-              [], // empty medicine list for now
+              medicine, // empty medicine list for now
               scientificName,
               imageUrl,
             );
