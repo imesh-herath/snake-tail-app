@@ -104,16 +104,16 @@ class _FindByAppearanceScreenState extends State<FindByAppearanceScreen> {
 
         print('Response: $jsonResponse');
 
+        if (jsonResponse == 'unknown') {
+          newOpenDetails();
+          return;
+        }
+
         var newReq = await http.get(Uri.parse('$apiURL/snakes/$jsonResponse'));
         print("New Request: $newReq");
 
         if (newReq.statusCode == 200) {
           Map<String, dynamic> newJsonResponse = json.decode(newReq.body);
-
-          if (newJsonResponse == 'unknown') {
-            newOpenDetails();
-            return;
-          }
 
           String snakeName =
               newJsonResponse['fields']['snake_name']['stringValue'];
