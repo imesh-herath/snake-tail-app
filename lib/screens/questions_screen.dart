@@ -6,7 +6,7 @@ import 'package:snake_tail/widgets/appbar.dart';
 import 'package:snake_tail/widgets/button.dart';
 import 'package:http/http.dart' as http;
 
-const apiURL = 'http://34.143.254.211:8080';
+const apiURL = 'http://localhost:8080';
 
 class QuestionsScreen extends StatefulWidget {
   const QuestionsScreen({super.key});
@@ -26,6 +26,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
     String bleeding = '';
     String changes = '';
     String bittenTime = '';
+    String name = '';
 
     void press() async {
       try {
@@ -38,6 +39,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
             'bleeding': {'stringValue': bleeding},
             'changes': {'stringValue': changes},
             'bittenTime': {'timestampValue': bittenTime},
+            'name': {'stringValue': name},
           }
         };
 
@@ -112,6 +114,27 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                 ),
                 const SizedBox(
                   height: 16,
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('What is your name?'),
+                    TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Enter your name', // Placeholder text
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          name =
+                              value; // Update the changes variable with the entered value
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 40,
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

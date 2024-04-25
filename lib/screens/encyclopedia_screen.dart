@@ -7,7 +7,7 @@ import 'package:snake_tail/widgets/button.dart';
 import 'dart:convert'; // for json decoding
 import 'package:http/http.dart' as http;
 
-const apiURL = 'http://34.143.254.211:8080';
+const apiURL = 'http://localhost:8080';
 
 class EncylopediaScreen extends StatefulWidget {
   const EncylopediaScreen({super.key});

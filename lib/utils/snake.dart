@@ -7,6 +7,6 @@ class Snake {
   final String? scientific_name;
   final String img_url;
 
-  const Snake(
-      this.snake_name, this.discription, this.medicine, this.scientific_name, this.img_url);
+  const Snake(this.snake_name, this.discription, this.medicine,
+      this.scientific_name, this.img_url);
 }
