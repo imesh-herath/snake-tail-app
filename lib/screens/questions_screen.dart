@@ -6,7 +6,7 @@ import 'package:snake_tail/widgets/appbar.dart';
 import 'package:snake_tail/widgets/button.dart';
 import 'package:http/http.dart' as http;
 
-const apiURL = 'http://localhost:8080';
+const apiURL = 'http://34.143.254.211:8080';
 
 class QuestionsScreen extends StatefulWidget {
   const QuestionsScreen({super.key});
